@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            text-align: center;
+            padding-top: 100px
+        }
+        
+        canvas {
+            margin: 0 auto
+        }
+        
+        #tutorial {}
+    </style>
+</head>
+
+<body>
+    <canvas id="tutorial" width="300" height="300"></canvas>
+    <canvas id="myCanvas" width="300" height="300"></canvas>
+</body>
+<script>
+    var animateflag = true
+    setInterval(() => {
+        animateflag = !animateflag
+    }, 600);
+    var canvas = document.getElementById('tutorial');
+    var ctx = canvas.getContext("2d");
+    let image = new Image();
+    image.src = './static/img/logo-o.png';
+    let pixels = [];
+    let imageData;
+    image.width = 200;
+    image.height = 200
+    image.onload = function() {
+        ctx.drawImage(image, (canvas.width - image.width) / 2, (canvas.height - image.height) / 2, image.width, image.height);
+        imageData = ctx.getImageData((canvas.width - image.width) / 2, (canvas.height - image.height) / 2, image.width, image.height);
+        getPixels();
+        setInterval(() => {
+            drawPixels()
+        }, 1000 / 60);
+    };
+
+    function getPixels() {
+        var pos = 0;
+        var data = imageData.data;
+        for (var i = 1; i <= image.width; i++) {
+            for (var j = 1; j <= image.height; j++) {
+                pos = [(i - 1) * image.width + (j - 1)] * 4;
+                if (data[pos] >= 0) {
+                    var pixel = {
+                        x: (canvas.width - image.width) / 2 + j + Math.random() * 0,
+                        y: (canvas.height - image.height) / 2 + i + Math.random() * 0,
+                        fillStyle: 'rgba(' + data[pos] + ',' + (data[pos + 1]) + ',' + (data[pos + 2]) + ',' + (data[pos + 3]) + ')'
+                    }
+                    pixels.push(pixel);
+                }
+            }
+        }
+    }
+
+    function drawPixels() {
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var len = pixels.length,
+            curr_pixel = null;
+        for (var i = 0; i < len; i++) {
+            curr_pixel = pixels[i];
+            if (animateflag) {
+                var widthflag = curr_pixel.x < 150;
+                var heightflag = curr_pixel.y < 150;
+            } else {
+                var widthflag = curr_pixel.x > 150;
+                var heightflag = curr_pixel.y > 150;
+            }
+            ctx.fillStyle = curr_pixel.fillStyle;
+            if (widthflag && heightflag) {
+                ctx.fillRect(curr_pixel.x -= Math.random() * 10, curr_pixel.y -= Math.random() * 10, 1, 1);
+            }
+            if (widthflag && !heightflag) {
+                ctx.fillRect(curr_pixel.x -= Math.random() * 10, curr_pixel.y += Math.random(10) * 10, 1, 1);
+            }
+            if (!widthflag && !heightflag) {
+                ctx.fillRect(curr_pixel.x += Math.random(10) * 10, curr_pixel.y += Math.random(10) * 10, 1, 1);
+            }
+            if (!widthflag && heightflag) {
+                ctx.fillRect(curr_pixel.x += Math.random(10) * 10, curr_pixel.y -= Math.random(10) * 10, 1, 1);
+            }
+
+        }
+    }
+</script>
+
+</html>
